@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../model/user_model.dart';
 import 'task_page.dart';
+import 'profile_page.dart';
 
 class HomePage extends StatelessWidget {
   final User user;
@@ -13,7 +14,22 @@ class HomePage extends StatelessWidget {
     int doneTask = taskList.where((task) => task.isDone).length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Home")),
+      appBar: AppBar(
+  title: const Text("Home"),
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.person),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilePage(user: user),
+          ),
+        );
+      },
+    ),
+  ],
+),
 
       body: Padding(
         padding: const EdgeInsets.all(20),

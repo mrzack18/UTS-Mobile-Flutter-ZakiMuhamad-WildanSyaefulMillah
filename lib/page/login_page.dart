@@ -49,10 +49,12 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       if (foundUser != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage(user: foundUser!)),
-        );
+        Navigator.pushReplacement(
+  context,
+  MaterialPageRoute(
+    builder: (context) => HomePage(user: foundUser!),
+  ),
+);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Username / Password salah")),
