@@ -4,6 +4,7 @@ import '../model/task_model.dart';
 final List<Task> taskList = [];
 
 const List<Color> _keepPalette = [
+  Color(0xFFFFFFFF), // Diubah warna pertama jadi putih default
   Color(0xFFFFF8B8),
   Color(0xFFFFF1E6),
   Color(0xFFE8F5E9),
@@ -11,7 +12,6 @@ const List<Color> _keepPalette = [
   Color(0xFFF3E5F5),
   Color(0xFFFFEBEE),
   Color(0xFFE0F7FA),
-  Color(0xFFF1F8E9),
 ];
 
 class TaskPage extends StatefulWidget {
@@ -132,23 +132,36 @@ class _TaskPageState extends State<TaskPage> {
 
   Widget _buildComposer() {
     return Card(
-      elevation: 0,
+      elevation: 8,
+      shadowColor: Colors.black12,
       color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header Composer
             Row(
               children: [
-                const Icon(Icons.lightbulb_outline, color: Colors.amber),
-                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.edit_note_rounded,
+                    color: Colors.blueAccent,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
                 Text(
-                  isPinned ? 'Catatan disematkan' : 'Catatan cepat',
+                  isPinned ? 'Catatan Disematkan' : 'Buat Catatan',
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
@@ -161,45 +174,69 @@ class _TaskPageState extends State<TaskPage> {
                   },
                   icon: Icon(
                     isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                    color: isPinned ? Colors.blueAccent : Colors.grey[600],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+
+            // Input Judul
             TextField(
               controller: titleController,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              decoration: const InputDecoration(
-                hintText: 'Judul',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                hintText: 'Judul Catatan',
+                hintStyle: TextStyle(
+                  color: Colors.grey.shade400,
+                  fontWeight: FontWeight.normal,
+                ),
                 border: InputBorder.none,
+                isDense: true,
               ),
             ),
+            Divider(color: Colors.grey.shade200, thickness: 1),
+
+            // Input Konten
             TextField(
               controller: contentController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'Tulis catatan...',
+              maxLines: null,
+              minLines: 2,
+              style: TextStyle(color: Colors.grey.shade800, fontSize: 16),
+              decoration: InputDecoration(
+                hintText: 'Tulis sesuatu di sini...',
+                hintStyle: TextStyle(color: Colors.grey.shade400),
                 border: InputBorder.none,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+
+            // Checklist Items
             ...itemControllers.asMap().entries.map((entry) {
               final i = entry.key;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: [
-                    IconButton(
-                      onPressed: () => _removeItemField(i),
-                      icon: const Icon(Icons.check_box_outline_blank),
-                      splashRadius: 20,
+                    InkWell(
+                      onTap: () => _removeItemField(i),
+                      borderRadius: BorderRadius.circular(20),
+                      child: Icon(
+                        Icons.remove_circle_outline,
+                        color: Colors.red.shade300,
+                        size: 22,
+                      ),
                     ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
                         controller: itemControllers[i],
-                        decoration: const InputDecoration(
+                        style: const TextStyle(fontSize: 15),
+                        decoration: InputDecoration(
                           hintText: 'Item checklist',
+                          hintStyle: TextStyle(color: Colors.grey.shade400),
                           border: InputBorder.none,
+                          isDense: true,
                         ),
                       ),
                     ),
@@ -207,20 +244,31 @@ class _TaskPageState extends State<TaskPage> {
                 ),
               );
             }),
+
             TextButton.icon(
               onPressed: addItemField,
-              icon: const Icon(Icons.add),
-              label: const Text('Tambah item'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blueAccent,
+                padding: EdgeInsets.zero,
+              ),
+              icon: const Icon(Icons.add_circle_outline, size: 20),
+              label: const Text(
+                'Tambah item',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
-            const SizedBox(height: 8),
+
+            const SizedBox(height: 16),
             const Text(
-              'Warna catatan',
-              style: TextStyle(fontWeight: FontWeight.w600),
+              'Warna Latar',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+
+            // Pilihan Warna
             Wrap(
-              spacing: 10,
-              runSpacing: 10,
+              spacing: 12,
+              runSpacing: 12,
               children: List.generate(_keepPalette.length, (index) {
                 final color = _keepPalette[index];
                 final isSelected = selectedColorIndex == index;
@@ -231,44 +279,66 @@ class _TaskPageState extends State<TaskPage> {
                     });
                   },
                   child: Container(
-                    width: 30,
-                    height: 30,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: color,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? Colors.black87 : Colors.transparent,
-                        width: 2,
+                        color: isSelected
+                            ? Colors.blueAccent
+                            : Colors.grey.shade300,
+                        width: isSelected ? 2.5 : 1,
                       ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: Colors.blueAccent.withOpacity(0.3),
+                                blurRadius: 6,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
                     ),
+                    child: isSelected
+                        ? Icon(
+                            Icons.check,
+                            size: 18,
+                            color: index == 0
+                                ? Colors.blueAccent
+                                : Colors.black54,
+                          )
+                        : null,
                   ),
                 );
               }),
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Text(
-                  'Tema aktif',
-                  style: TextStyle(color: Colors.grey.shade700),
-                ),
-                const Spacer(),
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: _keepPalette[selectedColorIndex],
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black12),
+            const SizedBox(height: 24),
+
+            // Tombol Simpan
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: addTask,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                const SizedBox(width: 12),
-                FilledButton.icon(
-                  onPressed: addTask,
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('Simpan'),
+                icon: const Icon(Icons.save_rounded, size: 20),
+                label: const Text(
+                  'Simpan Catatan',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -280,12 +350,18 @@ class _TaskPageState extends State<TaskPage> {
     final backgroundColor = task.color;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 6,
+      shadowColor: Colors.black12,
       color: backgroundColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: backgroundColor == Colors.white
+            ? BorderSide(color: Colors.grey.shade200)
+            : BorderSide.none,
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -299,16 +375,19 @@ class _TaskPageState extends State<TaskPage> {
                       Text(
                         task.title.isEmpty ? 'Catatan tanpa judul' : task.title,
                         style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       if (task.content.trim().isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(
                           task.content,
-                          maxLines: 5,
-                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.grey.shade800,
+                            height: 1.4,
+                            fontSize: 15,
+                          ),
                         ),
                       ],
                     ],
@@ -319,7 +398,9 @@ class _TaskPageState extends State<TaskPage> {
                   onPressed: () => togglePin(index),
                   icon: Icon(
                     task.pinned ? Icons.push_pin : Icons.push_pin_outlined,
-                    color: task.pinned ? Colors.black87 : Colors.black54,
+                    color: task.pinned
+                        ? Colors.blueAccent
+                        : Colors.grey.shade500,
                   ),
                 ),
               ],
@@ -330,23 +411,31 @@ class _TaskPageState extends State<TaskPage> {
                 final itemIndex = entry.key;
                 final item = entry.value;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: InkWell(
                     onTap: () => toggleItem(index, itemIndex),
+                    borderRadius: BorderRadius.circular(4),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(
                           item.isDone
-                              ? Icons.check_box
-                              : Icons.check_box_outline_blank,
-                          size: 20,
+                              ? Icons.check_box_rounded
+                              : Icons.check_box_outline_blank_rounded,
+                          size: 22,
+                          color: item.isDone
+                              ? Colors.blueAccent
+                              : Colors.grey.shade600,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             item.text,
                             style: TextStyle(
+                              fontSize: 15,
+                              color: item.isDone
+                                  ? Colors.grey.shade500
+                                  : Colors.grey.shade800,
                               decoration: item.isDone
                                   ? TextDecoration.lineThrough
                                   : null,
@@ -359,24 +448,45 @@ class _TaskPageState extends State<TaskPage> {
                 );
               }),
             ],
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             Row(
               children: [
                 if (task.items.isNotEmpty)
-                  Text(
-                    '${task.doneItems}/${task.totalItems} selesai',
-                    style: TextStyle(color: Colors.grey.shade800, fontSize: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${task.doneItems}/${task.totalItems} selesai',
+                      style: const TextStyle(
+                        color: Colors.blueAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   )
                 else
                   Text(
                     'Catatan',
-                    style: TextStyle(color: Colors.grey.shade800, fontSize: 12),
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 const Spacer(),
                 IconButton(
                   tooltip: 'Hapus catatan',
                   onPressed: () => deleteTask(index),
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Colors.redAccent,
+                  ),
                 ),
               ],
             ),
@@ -389,62 +499,93 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
+      backgroundColor:
+          Colors.grey[100], // Background selaras dengan Home & Login
       appBar: AppBar(
-        title: const Text('Keep Notes'),
+        title: const Text(
+          'Catatan',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
         centerTitle: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.blueAccent),
         actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {});
-            },
-            icon: const Icon(Icons.refresh),
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              onPressed: () {
+                setState(() {});
+              },
+              icon: const Icon(Icons.refresh_rounded, color: Colors.blueAccent),
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 40),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: _buildComposer(),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             if (_sortedTasks.isEmpty)
               Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.lightbulb_outline,
-                      size: 64,
-                      color: Colors.grey.shade400,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
+                child: Card(
+                  elevation: 4,
+                  shadowColor: Colors.black12,
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 40,
+                      horizontal: 24,
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Belum ada catatan',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade700,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.note_alt_rounded,
+                          size: 64,
+                          color: Colors.grey.shade300,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Belum ada catatan',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Buat catatan cepat, checklist, dan sematkan yang penting di sini.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Buat catatan cepat, checklist, dan sematkan yang penting seperti Google Keep.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                  ],
+                  ),
                 ),
               )
             else
               ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 itemCount: _sortedTasks.length,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
