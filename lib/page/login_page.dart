@@ -50,14 +50,19 @@ class _LoginPageState extends State<LoginPage> {
 
       if (foundUser != null) {
         Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (context) => HomePage(user: foundUser!),
-  ),
-);
+          context,
+          MaterialPageRoute(builder: (context) => HomePage(user: foundUser!)),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Username / Password salah")),
+          SnackBar(
+            content: const Text("Username atau Password salah"),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
         );
       }
     }
@@ -66,74 +71,166 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100], // Warna background yang lebih lembut
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Login",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-
-                TextFormField(
-                  controller: usernameController,
-                  decoration: const InputDecoration(
-                    labelText: "Username",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Username tidak boleh kosong";
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 15),
-
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: isObscure,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        isObscure ? Icons.visibility : Icons.visibility_off,
+        child: SingleChildScrollView(
+          // Mencegah overflow saat keyboard muncul
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Card(
+              elevation: 8,
+              shadowColor: Colors.black12,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  20,
+                ), // Sudut melengkung modern
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Ikon Header
+                      const Icon(
+                        Icons.lock_person_rounded,
+                        size: 64,
+                        color: Colors.blueAccent,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          isObscure = !isObscure;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Password tidak boleh kosong";
-                    }
-                    if (value.length < 6) {
-                      return "Password minimal 6 karakter";
-                    }
-                    return null;
-                  },
-                ),
+                      const SizedBox(height: 16),
 
-                const SizedBox(height: 20),
+                      // Judul
+                      const Text(
+                        "Welcome Back",
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Sign in to continue",
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                      const SizedBox(height: 32),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: login,
-                    child: const Text("Login"),
+                      // Input Username
+                      TextFormField(
+                        controller: usernameController,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          labelText: "Username",
+                          prefixIcon: const Icon(Icons.person_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Colors.blueAccent,
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Username tidak boleh kosong";
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Input Password
+                      TextFormField(
+                        controller: passwordController,
+                        obscureText: isObscure,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) =>
+                            login(), // Bisa submit lewat enter di keyboard
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Colors.blueAccent,
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              isObscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey[600],
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                isObscure = !isObscure;
+                              });
+                            },
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Password tidak boleh kosong";
+                          }
+                          if (value.length < 6) {
+                            return "Password minimal 6 karakter";
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Tombol Login
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: login,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
