@@ -14,6 +14,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Task> get _recentCreated {
+    final notes = [...taskList];
+    notes.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return notes;
+  }
+
   List<Task> get _sortedNotes {
     final notes = [...taskList];
     notes.sort((a, b) {
@@ -38,6 +44,21 @@ class _HomePageState extends State<HomePage> {
     }
 
     return parts.isEmpty ? 'Belum ada isi' : parts.join(' • ');
+  }
+
+  void _toggleItem(Task task, int itemIndex) {
+    setState(() {
+      task.items[itemIndex].isDone = !task.items[itemIndex].isDone;
+      task.updatedAt = DateTime.now();
+    });
+  }
+
+  String _formatDate(DateTime value) {
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final hour = value.hour.toString().padLeft(2, '0');
+    final minute = value.minute.toString().padLeft(2, '0');
+    return '$day/$month/${value.year} $hour:$minute';
   }
 
   Widget _buildStatCard(
@@ -130,9 +151,64 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildHistoryCard(Task task) {
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              task.title.isEmpty ? 'Catatan tanpa judul' : task.title,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Dibuat ${_formatDate(task.createdAt)}',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            ),
+            if (task.items.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ...task.items.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return CheckboxListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  value: item.isDone,
+                  onChanged: (_) => _toggleItem(task, index),
+                  title: Text(
+                    item.text,
+                    style: TextStyle(
+                      decoration: item.isDone
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                  ),
+                  controlAffinity: ListTileControlAffinity.leading,
+                );
+              }),
+            ] else
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Tidak ada checklist',
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final notes = _sortedNotes;
+    final recentCreated = _recentCreated;
     final totalTask = notes.length;
     final totalItem = notes.fold<int>(0, (sum, task) => sum + task.totalItems);
     final doneItem = notes.fold<int>(0, (sum, task) => sum + task.doneItems);
@@ -278,6 +354,29 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+            const SizedBox(height: 20),
+            const Text(
+              'Riwayat membuat catatan',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            if (recentCreated.isEmpty)
+              Card(
+                elevation: 0,
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    'Belum ada riwayat catatan',
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
+                ),
+              )
+            else
+              ...recentCreated.take(5).map(_buildHistoryCard),
             const SizedBox(height: 20),
             const Text(
               'Catatan terbaru',
