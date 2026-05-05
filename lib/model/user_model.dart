@@ -4,6 +4,7 @@ class User {
   final String nama;
   final String email;
   final String noHp;
+  final List<int>? photoBytes;
 
   User({
     required this.username,
@@ -11,5 +12,6 @@ class User {
     required this.nama,
     required this.email,
     required this.noHp,
+    this.photoBytes,
   });
 }

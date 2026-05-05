@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import '../model/user_model.dart';
 import 'edit_profile_page.dart';
@@ -15,6 +17,14 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late User user;
 
+  String _initialFromName(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      return '?';
+    }
+    return trimmed[0].toUpperCase();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -25,9 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void goToEdit() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EditProfilePage(user: user),
-      ),
+      MaterialPageRoute(builder: (context) => EditProfilePage(user: user)),
     );
 
     if (result != null && result is User) {
@@ -53,9 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,
               );
             },
@@ -68,14 +74,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final Uint8List? photoBytes = user.photoBytes == null
+        ? null
+        : Uint8List.fromList(user.photoBytes!);
+    final hasPhoto = photoBytes != null && photoBytes.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: goToEdit,
-          )
+          IconButton(icon: const Icon(Icons.edit), onPressed: goToEdit),
         ],
       ),
 
@@ -84,6 +92,24 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: CircleAvatar(
+                radius: 52,
+                backgroundColor: Colors.blueGrey.shade200,
+                backgroundImage: hasPhoto ? MemoryImage(photoBytes!) : null,
+                child: hasPhoto
+                    ? null
+                    : Text(
+                        _initialFromName(user.nama),
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 20),
             Text("Nama: ${user.nama}"),
             const SizedBox(height: 10),
 
@@ -101,9 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: logout,
                 child: const Text("Logout"),
               ),
