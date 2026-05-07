@@ -113,68 +113,80 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildNoteCard(Task task) {
     // Jika task.color sangat gelap, gunakan teks putih, tapi idealnya soft color
-    return Card(
-      elevation: 6,
-      shadowColor: Colors.black12,
-      color: task.color == Colors.transparent ? Colors.white : task.color,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    task.title.isEmpty ? 'Catatan tanpa judul' : task.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.3,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const TaskPage()),
+        ).then((_) {
+          if (!mounted) return;
+          setState(() {});
+        });
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Card(
+        elevation: 6,
+        shadowColor: Colors.black12,
+        color: task.color == Colors.transparent ? Colors.white : task.color,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      task.title.isEmpty ? 'Catatan tanpa judul' : task.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                if (task.pinned)
-                  const Icon(
-                    Icons.push_pin,
-                    size: 20,
-                    color: Colors.blueAccent,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _notePreview(task),
-              maxLines: 3,
-              style: TextStyle(color: Colors.grey[700], height: 1.4),
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (task.items.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: LinearProgressIndicator(
-                  value: task.completion,
-                  minHeight: 6,
-                  backgroundColor: Colors.black12,
-                  color: Colors.blueAccent,
-                ),
+                  if (task.pinned)
+                    const Icon(
+                      Icons.push_pin,
+                      size: 20,
+                      color: Colors.blueAccent,
+                    ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
-                '${task.doneItems}/${task.totalItems} selesai',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600],
-                ),
+                _notePreview(task),
+                maxLines: 3,
+                style: TextStyle(color: Colors.grey[700], height: 1.4),
+                overflow: TextOverflow.ellipsis,
               ),
+              if (task.items.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: task.completion,
+                    minHeight: 6,
+                    backgroundColor: Colors.black12,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${task.doneItems}/${task.totalItems} selesai',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
