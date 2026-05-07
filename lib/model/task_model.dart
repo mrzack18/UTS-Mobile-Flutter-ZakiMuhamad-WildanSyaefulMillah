@@ -11,6 +11,7 @@ class Task {
   String title;
   String content;
   List<ChecklistItem> items;
+  List<String> imagePaths;
   bool pinned;
   bool archived;
   Color color;
@@ -21,6 +22,7 @@ class Task {
     required this.title,
     this.content = '',
     this.items = const [],
+    this.imagePaths = const [],
     this.pinned = false,
     this.archived = false,
     this.color = const Color(0xFFFFF8B8),
@@ -36,12 +38,16 @@ class Task {
   double get completion => totalItems == 0 ? 0 : doneItems / totalItems;
 
   bool get hasContent =>
-      title.trim().isNotEmpty || content.trim().isNotEmpty || items.isNotEmpty;
+      title.trim().isNotEmpty ||
+      content.trim().isNotEmpty ||
+      items.isNotEmpty ||
+      imagePaths.isNotEmpty;
 
   Task copyWith({
     String? title,
     String? content,
     List<ChecklistItem>? items,
+    List<String>? imagePaths,
     bool? pinned,
     bool? archived,
     Color? color,
@@ -52,6 +58,7 @@ class Task {
       title: title ?? this.title,
       content: content ?? this.content,
       items: items ?? this.items,
+      imagePaths: imagePaths ?? this.imagePaths,
       pinned: pinned ?? this.pinned,
       archived: archived ?? this.archived,
       color: color ?? this.color,

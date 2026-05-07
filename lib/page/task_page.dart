@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../model/task_model.dart';
+import '../util/image_helper.dart';
 
 final List<Task> taskList = [];
 
@@ -25,6 +27,8 @@ class _TaskPageState extends State<TaskPage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   final List<TextEditingController> itemControllers = [TextEditingController()];
+  final ImagePicker _imagePicker = ImagePicker();
+  final List<String> selectedImagePaths = [];
   bool isPinned = false;
   int selectedColorIndex = 0;
 
@@ -59,7 +63,10 @@ class _TaskPageState extends State<TaskPage> {
         .map((text) => ChecklistItem(text: text))
         .toList();
 
-    if (title.isEmpty && content.isEmpty && items.isEmpty) {
+    if (title.isEmpty &&
+        content.isEmpty &&
+        items.isEmpty &&
+        selectedImagePaths.isEmpty) {
       return;
     }
 
@@ -70,6 +77,7 @@ class _TaskPageState extends State<TaskPage> {
           title: title,
           content: content,
           items: items,
+          imagePaths: List<String>.from(selectedImagePaths),
           pinned: isPinned,
           color: _keepPalette[selectedColorIndex],
         ),
@@ -126,8 +134,46 @@ class _TaskPageState extends State<TaskPage> {
       itemControllers.removeAt(i);
     }
     itemControllers.add(TextEditingController());
+    selectedImagePaths.clear();
     isPinned = false;
     selectedColorIndex = 0;
+  }
+
+  Future<void> _pickImages() async {
+    final images = await _imagePicker.pickMultiImage();
+    if (images.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      selectedImagePaths.addAll(
+        images.map((image) => image.path).where((path) => path.isNotEmpty),
+      );
+    });
+  }
+
+  void _removeSelectedImage(int index) {
+    setState(() {
+      selectedImagePaths.removeAt(index);
+    });
+  }
+
+  void _showImagePreview(String path) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          insetPadding: const EdgeInsets.all(16),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: InteractiveViewer(
+              child: buildAdaptiveImage(path, fit: BoxFit.contain),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildComposer() {
@@ -314,6 +360,75 @@ class _TaskPageState extends State<TaskPage> {
               }),
             ),
             const SizedBox(height: 24),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: _pickImages,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blueAccent,
+                    padding: EdgeInsets.zero,
+                  ),
+                  icon: const Icon(Icons.photo_library_outlined, size: 20),
+                  label: const Text(
+                    'Tambah foto',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                if (selectedImagePaths.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    '${selectedImagePaths.length} foto',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  ),
+                ],
+              ],
+            ),
+            if (selectedImagePaths.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(selectedImagePaths.length, (index) {
+                  final path = selectedImagePaths[index];
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      GestureDetector(
+                        onTap: () => _showImagePreview(path),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: buildAdaptiveImage(
+                            path,
+                            width: 90,
+                            height: 90,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: -6,
+                        right: -6,
+                        child: InkWell(
+                          onTap: () => _removeSelectedImage(index),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: const Icon(
+                              Icons.close,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ],
 
             // Tombol Simpan
             SizedBox(
@@ -447,6 +562,28 @@ class _TaskPageState extends State<TaskPage> {
                   ),
                 );
               }),
+            ],
+            if (task.imagePaths.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(task.imagePaths.length, (imageIndex) {
+                  final path = task.imagePaths[imageIndex];
+                  return GestureDetector(
+                    onTap: () => _showImagePreview(path),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: buildAdaptiveImage(
+                        path,
+                        width: 90,
+                        height: 90,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  );
+                }),
+              ),
             ],
             const SizedBox(height: 16),
             Row(
