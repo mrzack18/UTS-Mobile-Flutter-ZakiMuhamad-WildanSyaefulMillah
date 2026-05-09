@@ -24,6 +24,12 @@ TaskNote adalah aplikasi mobile yang memungkinkan pengguna untuk membuat, mengel
 
 ## Screenshots
 
+### Splash Screen
+
+| Splash Screen |
+| :---: |
+| ![Splash Screen](screenshots/splash_screen.png) |
+
 ### Halaman Login
 
 | Login | Password Terlihat | Validasi Username Kosong |
