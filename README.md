@@ -1,4 +1,4 @@
-# TaskNote - Aplikasi Catatan dan Checklist
+# CATATAN MAHASISWA - Aplikasi Catatan dan Checklist
 
 Aplikasi manajemen catatan dan checklist berbasis Flutter yang dikembangkan sebagai Ujian Tengah Semester (UTS) mata kuliah Pemrograman Mobile.
 
@@ -18,7 +18,7 @@ Aplikasi manajemen catatan dan checklist berbasis Flutter yang dikembangkan seba
 
 ## Deskripsi Aplikasi
 
-TaskNote adalah aplikasi mobile yang memungkinkan pengguna untuk membuat, mengelola, dan melacak catatan serta checklist secara efisien. Aplikasi ini dibangun menggunakan framework Flutter dengan pendekatan Material Design modern, sehingga dapat berjalan pada platform Android, iOS, Web, Windows, Linux, dan macOS.
+CATATAN MAHASISWA adalah aplikasi mobile yang memungkinkan pengguna untuk membuat, mengelola, dan melacak catatan serta checklist secara efisien. Aplikasi ini dibangun menggunakan framework Flutter dengan pendekatan Material Design modern, sehingga dapat berjalan pada platform Android, iOS, Web, Windows, Linux, dan macOS.
 
 ---
 
